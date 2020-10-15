@@ -9,6 +9,7 @@ class Listen(threading.Thread):
         self.socket = socket
         self.shared_key = shared_key
         self.server = server 
+        self.keep_alive = True
 
     def run(self):
         self.socket.setblocking(0)
