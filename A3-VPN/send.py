@@ -1,4 +1,4 @@
-  
+
 import socket
 import threading
 
@@ -10,12 +10,12 @@ class Send(threading.Thread):
         threading.Thread.__init__(self)
         self.socket = socket
         self.queue = queue
-        self.keep_alive = True 
-    
-    # Keep reading from the queue and send 
+        self.keep_alive = True
+
+    # Keep reading from the queue and send
     def run(self):
         self.socket.setblocking(0)
-        while (self.keep_alive):  
+        while (self.keep_alive):
             if not self.queue.empty():
                 msg = self.queue.get()
                 self.socket.sendall(msg)
