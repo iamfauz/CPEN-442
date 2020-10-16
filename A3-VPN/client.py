@@ -33,6 +33,7 @@ class Client:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((self.ip_addr, self.port))
             self.startSendRecieveThreads()
+            return ("Connected to Server (%s, %i)" % (self.ip_addr, self.port))
           
     def send(self, msg):
         self.send_queue.put(msg)
@@ -45,10 +46,13 @@ class Client:
             return None
 
     def startSendRecieveThreads(self):
-        self.sendThread = Send(self.socket, self.send_queue, self)
-        self.receiveThread = Receive(self.socket, self.receive_queue, self)
+        self.sendThread = Send(self.socket, self.send_queue)
+        self.receiveThread = Receive(self.socket, self.receive_queue)
         self.sendThread.start()
         self.receiveThread.start()
-
+    
+    def clear_queues(self):
+        self.receive_queue.queue.clear()
+        self.send_queue.queue.clear()
     def close(self):  
         pass #TODO - do cleanup here

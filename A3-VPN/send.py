@@ -18,7 +18,7 @@ class Send(threading.Thread):
         while (self.keep_alive):  
             if not self.queue.empty():
                 msg = self.queue.get()
-                self.socket.sendall(msg)
+                self.socket.sendall(msg.encode("utf-8"))
         self.socket.close()
 
     def close(self):

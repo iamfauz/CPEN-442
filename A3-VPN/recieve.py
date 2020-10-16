@@ -14,14 +14,16 @@ class Receive(threading.Thread):
     def run(self):
         self.socket.setblocking(0)
         while (self.keep_alive):
-                msg = self.socket.recv(8192)
-                if len(msg) == 0:
-                    # Server has closed the socket, exit the program
-                    print('Lost connection to the server!')
-                    self.sock.close()
-            
-                self.queue.put(msg)
-                    
+                try:
+                    msg = self.socket.recv(8192)
+                    if len(msg) == 0:
+                        # Server has closed the socket, exit the program
+                        print('Lost connection to the server!')
+                        self.sock.close()
+                
+                    self.queue.put(msg.decode("utf-8"))
+                except socket.error:  
+                    pass 
         self.socket.close()
 
     def close(self):

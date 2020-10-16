@@ -24,9 +24,10 @@ from recieve import Receive
 
 class Server:
     
-    def __init__(self, port, shared_key):
+    def __init__(self, port, shared_key, on_connected_callback):
         self.port = port
         self.shared_key = shared_key
+        self.on_connected_callback = on_connected_callback
         self.send_queue = Queue()
         self.receive_queue = Queue()
         self.sendThread = None
@@ -36,7 +37,7 @@ class Server:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.bind(('', self.port))
             self.socket.listen(1) 
-
+            return ("Server listening on port " + str(self.port))
 
     def send(self, msg):
         self.send_queue.put(msg)
@@ -49,14 +50,17 @@ class Server:
             return None
 
     def start(self):
-        self.listener = Listen(self.socket, self.shared_key, self)
+        self.listener = Listen(self.socket, self.shared_key, self, self.on_connected_callback)
         self.listener.start()
 
     def startSendRecieveThreads(self, client_socket):
-        self.sendThread = Send(client_socket, self.send_queue, self)
-        self.receiveThread = Receive(client_socket, self.receive_queue, self)
+        self.sendThread = Send(client_socket, self.send_queue)
+        self.receiveThread = Receive(client_socket, self.receive_queue)
         self.sendThread.start()
         self.receiveThread.start()
 
+    def clear_queues(self):
+        self.receive_queue.queue.clear()
+        self.send_queue.queue.clear()
     def close(self):  
         pass #TODO - do cleanup her
