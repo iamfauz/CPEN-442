@@ -110,6 +110,17 @@ class VpnChatApp(App):
             self.control_panel.remove_widget(self.ip_address)
             self.chat_window.write_info("You are now in Server Mode")
 
+    # Called when Send button is clicked 
+    def on_send_btn_clicked(self, btn):
+        msg = self.chat_input.text
+        if self.server_mode.state == 'down':
+                self.chat_window.write_info(msg)
+                self.server.send(msg)
+        else:
+                self.chat_window.write_info(msg)
+                self.client.send(msg)
+        self.chat_input.text = "" # Clear Text Input
+
     # Widget used for IP, Port, Shared Secret Input
     def ConfigWidget(self,text=None):
         box_layout = BoxLayout(orientation="vertical", padding=30)
@@ -210,7 +221,7 @@ class VpnChatApp(App):
         )
         self.chat_input = TextInput(size_hint=(0.8, 1))
         self.send_button = Button(size_hint=(0.2, 1), text="Send")
-       
+        self.send_button.bind(on_press=self.on_send_btn_clicked)
         self.input_layout.add_widget(self.chat_input)
         self.input_layout.add_widget(self.send_button)
         self.chat_layout.add_widget(self.chat_window)
@@ -251,9 +262,9 @@ class ChatWindow(TextInput):
             pass
         self.lock.release()
 
-    def write_message(self, name, message):
+    def write_message(self, tag, message):
         time = datetime.datetime.now().time().strftime('%H:%M')
-        header = "(%s) [%s]     " %(time, name)
+        header = "(%s) [%s]     " %(time, tag)
         self.write(header + message)
     
     def write_info(self, message):
@@ -265,9 +276,9 @@ class ChatWindow(TextInput):
 # Outputs stuff on the Chat Window
 class MessageReceiver(threading.Thread):
     
-    def __init__(self, name, conn, chat_window):
+    def __init__(self, tag, conn, chat_window):
         threading.Thread.__init__(self)
-        self.name = name
+        self.tag = tag
         self.conn = conn
         self.queue = self.conn.receive_queue
         self.chat_window = chat_window
@@ -277,7 +288,7 @@ class MessageReceiver(threading.Thread):
         while self.keep_alive:
             msg = self.conn.receive()
             if msg:
-                self.chat_window.write_message(self.name, msg)
+                self.chat_window.write_message(self.tag, msg)
 
     def close(self):
         self.keep_alive = False
