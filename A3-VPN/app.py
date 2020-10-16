@@ -113,11 +113,10 @@ class VpnChatApp(App):
     # Called when Send button is clicked 
     def on_send_btn_clicked(self, btn):
         msg = self.chat_input.text
+        self.chat_window.write_message("ME", msg)        
         if self.server_mode.state == 'down':
-                self.chat_window.write_info(msg)
                 self.server.send(msg)
-        else:
-                self.chat_window.write_info(msg)
+        else:      
                 self.client.send(msg)
         self.chat_input.text = "" # Clear Text Input
 
