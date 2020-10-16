@@ -4,7 +4,7 @@ import threading
 # Thread used by both client and server.
 # Keeps reading messages from the socket and puts the messgae in the queue
 class Receive(threading.Thread):
-    
+
     def __init__(self, socket, queue):
         threading.Thread.__init__(self)
         self.socket = socket
@@ -12,6 +12,8 @@ class Receive(threading.Thread):
         self.keep_alive = True
 
     def run(self):
+        print('rec')
+        print(self.socket)
         self.socket.setblocking(0)
         while (self.keep_alive):
                 try:
@@ -19,11 +21,11 @@ class Receive(threading.Thread):
                     if len(msg) == 0:
                         # Server has closed the socket, exit the program
                         print('Lost connection to the server!')
-                        self.sock.close()
-                
+                        self.socket.close()
+
                     self.queue.put(msg.decode("utf-8"))
-                except socket.error:  
-                    pass 
+                except socket.error:
+                    pass
         self.socket.close()
 
     def close(self):

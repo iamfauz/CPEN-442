@@ -23,7 +23,7 @@ from recieve import Receive
 #             conn.sendall(input_var)
 
 class Server:
-    
+
     def __init__(self, port, shared_key, on_connected_callback):
         self.port = port
         self.shared_key = shared_key
@@ -32,11 +32,12 @@ class Server:
         self.receive_queue = Queue()
         self.sendThread = None
         self.receiveThread = None
+        self.connectionAuth = False
 
     def setup(self):
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.bind(('', self.port))
-            self.socket.listen(1) 
+            self.socket.listen(1)
             return ("Server listening on port " + str(self.port))
 
     def send(self, msg):
@@ -54,6 +55,7 @@ class Server:
         self.listener.start()
 
     def startSendRecieveThreads(self, client_socket):
+        print('Start server send receive threads...')
         self.sendThread = Send(client_socket, self.send_queue)
         self.receiveThread = Receive(client_socket, self.receive_queue)
         self.sendThread.start()
@@ -62,5 +64,5 @@ class Server:
     def clear_queues(self):
         self.receive_queue.queue.clear()
         self.send_queue.queue.clear()
-    def close(self):  
+    def close(self):
         pass #TODO - do cleanup her
