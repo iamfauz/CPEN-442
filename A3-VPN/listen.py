@@ -9,7 +9,7 @@ import hashlib
 # Thead used by the server to listen for connection requests
 class Listen(threading.Thread):
 
-    def __init__(self, socket, shared_key, server, on_connected_callback):
+    def __init__(self, socket, shared_key, server, on_connected_callback, app):
         threading.Thread.__init__(self)
         self.socket = socket
         self.shared_key = shared_key
@@ -20,11 +20,13 @@ class Listen(threading.Thread):
         self.connectionStep = 1
         self.connectionSteps = 5
         self.debugMode = self.server.debugMode
+        self.app = app
 
     def run(self):
         # self.socket.setblocking(0)
+       
         while (self.keep_alive) and self.connectionAuth == False:
-            
+            print(self.app.connection_steps)
             client_socket, addr = self.socket.accept()
 
             #1st arrow in Figure 9.12

@@ -27,6 +27,8 @@ class VpnChatApp(App):
         self.client = None
         self.server = None
         self.message_receiver = None # Thread that listens to the receive queue of connection
+        self.debug_mode = False
+        self.connection_steps = 0
 
     # Callback function called when connection is succesfully established
     # This connects the Message reciever thread to the appropiate connection
@@ -82,6 +84,8 @@ class VpnChatApp(App):
                     port,
                     shared_key,
                     self.on_connected_callback,
+                    self.debug_mode,
+                    self
 
             )
             message = self.server.setup()
@@ -93,10 +97,20 @@ class VpnChatApp(App):
                     ip_address,
                     port,
                     shared_key,
+                    self.debug_mode,
+                    self
             )
             message = self.client.connect()
             self.chat_window.write_info(message)
             self.on_connected_callback(ip_address, port)
+
+    # User clicks on Continuwe button
+    def on_continue_btn_clicked(self, *args):
+        self.connection_steps+=1
+        
+    
+    def get_conn_steps_callback(self):
+        return self.connection_steps
 
     # Client Toggle button onClick fuction
     def toggle_client_button(self, *args):
@@ -135,6 +149,17 @@ class VpnChatApp(App):
         for child in config_widget.children:
             if isinstance(child, TextInput):
                 return str(child.text)
+
+     # Debug toggle
+    def on_debug_toggle(self, btn, val):
+        if val:
+            self.debug_mode = True
+            self.chat_window.write_info("Debug Mode on!")
+        else:
+            self.debug_mode = False
+            self.chat_window.write_info("Debug Mode off!")
+    
+
 
     def build(self):
         # Root Widget
@@ -204,8 +229,25 @@ class VpnChatApp(App):
                 size_hint=(1, None),
 
         )
+
+        self.continue_button = Button(
+                text="Continue",
+                background_color=(1,0,1,1),
+                size=(300, 85),
+                size_hint=(1, None),
+
+        )
+        self.continue_button.bind(on_press=self.on_continue_btn_clicked)
+        
+       
         self.control_panel.add_widget(self.connect_button)
         self.control_panel.add_widget(self.disconnect_button)
+        self.control_panel.add_widget(self.continue_button)
+        self.debug_label = Label(text="Debug Mode", size=(300, 50), size_hint=(1, None))
+        self.debug_toggle = Switch(active=False, size=(300, 50), size_hint=(1, None))
+        self.debug_toggle.bind(active=self.on_debug_toggle)
+        self.control_panel.add_widget(self.debug_label)
+        self.control_panel.add_widget(self.debug_toggle)
 
         # Chat Layout Panel
         self.chat_layout = BoxLayout(

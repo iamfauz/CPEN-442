@@ -9,7 +9,7 @@ import threading
 # Keeps reading messages from the queue and sends the message over the connection
 class Send(threading.Thread):
 
-    def __init__(self, socket, queue, shared_key, debugMode):
+    def __init__(self, socket, queue, shared_key, debugMode, app):
         threading.Thread.__init__(self)
         self.socket = socket
         self.queue = queue
@@ -18,6 +18,7 @@ class Send(threading.Thread):
         self.connectionStep = 1
         self.connectionSteps = 2
         self.debugMode = debugMode
+        self.app = app
 
     # Keep reading from the queue and send
     def run(self):
