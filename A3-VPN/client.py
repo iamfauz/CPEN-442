@@ -11,7 +11,7 @@ from recieve import Receive
 
 class Client:
 
-    def __init__(self, ip_addr, port, shared_key):
+    def __init__(self, ip_addr, port, shared_key, debug_mode):
         self.ip_addr = ip_addr
         self.port = port
         self.shared_key = shared_key
@@ -22,7 +22,7 @@ class Client:
         self.connectionAuth = False
         self.connectionStep = 1
         self.connectionSteps = 5
-        self.debugMode = False
+        self.debugMode = debug_mode
 
     def connect(self):
 

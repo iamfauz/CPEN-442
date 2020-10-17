@@ -8,7 +8,7 @@ from Crypto.Cipher import AES
 # Keeps reading messages from the socket and puts the messgae in the queue
 class Receive(threading.Thread):
 
-    def __init__(self, socket, queue, shared_key, debugMode):
+    def __init__(self, socket, queue, shared_key, debug_mode):
         threading.Thread.__init__(self)
         self.socket = socket
         self.queue = queue
@@ -16,7 +16,7 @@ class Receive(threading.Thread):
         self.shared_key = shared_key
         self.connectionStep = 1
         self.connectionSteps = 2
-        self.debugMode = debugMode
+        self.debugMode = debug_mode
 
     def run(self):
         # self.socket.setblocking(0)

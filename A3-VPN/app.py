@@ -83,6 +83,7 @@ class VpnChatApp(App):
                     port,
                     shared_key,
                     self.on_connected_callback,
+                    self.debug_mode
 
             )
             message = self.server.setup()
@@ -94,6 +95,7 @@ class VpnChatApp(App):
                     ip_address,
                     port,
                     shared_key,
+                    self.debug_mode
             )
             message = self.client.connect()
             self.chat_window.write_info(message)

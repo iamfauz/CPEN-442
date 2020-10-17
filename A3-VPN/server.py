@@ -7,7 +7,7 @@ from recieve import Receive
 
 class Server:
 
-    def __init__(self, port, shared_key, on_connected_callback):
+    def __init__(self, port, shared_key, on_connected_callback, debug_mode):
         self.port = port
         self.shared_key = shared_key
         self.on_connected_callback = on_connected_callback
@@ -17,7 +17,7 @@ class Server:
         self.receiveThread = None
         self.connectionAuth = False
         self.client_socket = None
-        self.debugMode = False
+        self.debugMode = debug_mode
 
     def setup(self):
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
