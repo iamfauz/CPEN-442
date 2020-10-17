@@ -2,14 +2,13 @@ import socket
 import sys
 import random
 import os
+import hashlib
 from Crypto.Cipher import AES
 
 HOST = '127.0.0.1'
 PORT = 65432
 
-K_AB = '123' #input("Hi TA, please enter the shared secret value: ")
-K_AB = K_AB.zfill(16) #pad the key to be 16 bytes
-
+SSV = '123' #input("Hi TA, please enter the shared secret value: ")
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
@@ -22,6 +21,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         print("Server received a nonce (R_A): ", R_A)
         R_B = os.urandom(16) # generate R_B
         
+        #generation of key K_AB
+        keyHash = hashlib.md5(SSV.encode() + R_A)
+        K_AB = keyHash.digest()
+        print('K_AB is ', K_AB)
+
         #2nd arrow in Figure 9.12
         print("Server generated a nonce (R_B): ", R_B)
         conn.sendall(R_B) #send R_B
