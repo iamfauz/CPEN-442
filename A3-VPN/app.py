@@ -73,11 +73,15 @@ class VpnChatApp(App):
         # Get IP from GUI
         if (self.client_mode.state == 'down'):
             ip_address = self.get_config_widget_input(self.ip_address)
-            ip_address = str(ip_address) # Probablu need to sanitaize input i.e check if valid IP or not
-            if not ip_address:
-                self.chat_window.write_info("Enter Valid IP Adress")
-                return
+            ip_address = str(ip_address)
 
+            # Checking for valid ip address
+            try:
+                    ipaddress.ip_address(ip_address)
+            except ValueError:
+                    self.chat_window.write_info("Enter Invalid IP Address: " + ip_address)
+                    return
+           
         if (self.server_mode.state == 'down'):
             # Initialize Server and setup server
             self.server = Server(
