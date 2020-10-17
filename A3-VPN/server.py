@@ -17,6 +17,7 @@ class Server:
         self.receiveThread = None
         self.connectionAuth = False
         self.client_socket = None
+        self.debugMode = False
 
     def setup(self):
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,8 +42,8 @@ class Server:
     def startSendRecieveThreads(self):
         print('Start server send receive threads...')
         print(self.client_socket)
-        self.sendThread = Send(self.client_socket, self.send_queue, self.shared_key)
-        self.receiveThread = Receive(self.client_socket, self.receive_queue, self.shared_key)
+        self.sendThread = Send(self.client_socket, self.send_queue, self.shared_key, self.debugMode)
+        self.receiveThread = Receive(self.client_socket, self.receive_queue, self.shared_key, self.debugMode)
         self.sendThread.start()
         self.receiveThread.start()
 
