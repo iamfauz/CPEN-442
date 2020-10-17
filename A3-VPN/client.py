@@ -20,6 +20,9 @@ class Client:
         self.sendThread = None
         self.receiveThread = None
         self.connectionAuth = False
+        self.connectionStep = 1
+        self.connectionSteps = 5
+        self.debugMode = False
 
     def connect(self):
 
@@ -32,20 +35,33 @@ class Client:
             self.socket.sendall(R_A) #send R_A
             print("Client sent nonce R_A.")
 
+            while self.debugMode and self.connectionStep % self.connectionSteps == 1:
+                time.sleep(0.1)
+
             #generation of key K_AB fresh session key
             keyHash = hashlib.md5(self.shared_key + R_A)
             self.shared_key = keyHash.digest()
             print('The fresh session key is ', self.shared_key)
+
+            while self.debugMode and self.connectionStep % self.connectionSteps == 2:
+                time.sleep(0.1)
 
             #Point2: 2nd arrow in Figure 9.12
             R_B = self.socket.recv(16) # receive R_B
             print("Client received a nonce (R_B): ", R_B)
             message = self.socket.recv(1024) # receive E("Bob",R_A,K_AB)
             print("Client received a message: ", message)
+
+            while self.debugMode and self.connectionStep % self.connectionSteps == 3:
+                time.sleep(0.1)
+
             aes = AES.new(self.shared_key, AES.MODE_CBC, R_A)
             decd = aes.decrypt(message) #decrypt using K_AB and R_A
             server_IP = str(decd.rstrip().decode())
-            print(server_IP)
+            print("Decrypted message to be: ", server_IP)
+
+            while self.debugMode and self.connectionStep % self.connectionSteps == 4:
+                time.sleep(0.1)
 
             if(server_IP == self.ip_addr):
                 print("Server IP address is a match.")
@@ -55,15 +71,18 @@ class Client:
                 print("Server IP address is NOT a match")
                 raise Exception("Authentication is: INVALID")
 
+            while self.debugMode and self.connectionStep % self.connectionSteps == 0:
+                time.sleep(0.1)
+
             #Point 3: 3rd arrow in Figure 9.12
             message = socket.gethostbyname(socket.gethostname()) # get own IP
             n = len(message)
-
             if n % 16 != 0:
                 message += ' ' * (16 - n % 16) #padded with spaces
             aes = AES.new(self.shared_key, AES.MODE_CBC, R_B)
             encd = aes.encrypt(message.encode("utf8")) #encrypt "Alice" using R_B and K_AB
             self.socket.sendall(encd) #send E("Alice",R_B,K_AB)
+            print("Client send ecrypted message: ", encd)
 
             self.startSendRecieveThreads()
             return ("Connected to Server (%s, %i)" % (self.ip_addr, self.port))
@@ -80,8 +99,8 @@ class Client:
 
     def startSendRecieveThreads(self):
         print("Client starting send receive threads...")
-        self.sendThread = Send(self.socket, self.send_queue, self.shared_key)
-        self.receiveThread = Receive(self.socket, self.receive_queue, self.shared_key)
+        self.sendThread = Send(self.socket, self.send_queue, self.shared_key, self.debugMode)
+        self.receiveThread = Receive(self.socket, self.receive_queue, self.shared_key, self.debugMode)
         self.sendThread.start()
         self.receiveThread.start()
 

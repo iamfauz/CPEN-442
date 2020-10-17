@@ -8,12 +8,15 @@ from Crypto.Cipher import AES
 # Keeps reading messages from the socket and puts the messgae in the queue
 class Receive(threading.Thread):
 
-    def __init__(self, socket, queue, shared_key):
+    def __init__(self, socket, queue, shared_key, debugMode):
         threading.Thread.__init__(self)
         self.socket = socket
         self.queue = queue
         self.keep_alive = True
         self.shared_key = shared_key
+        self.connectionStep = 1
+        self.connectionSteps = 2
+        self.debugMode = debugMode
 
     def run(self):
         # self.socket.setblocking(0)
@@ -23,8 +26,14 @@ class Receive(threading.Thread):
                     R = self.socket.recv(16) # receive R_B
                     print("Received a nonce (R): ", R)
 
+                    while self.debugMode and self.connectionStep % self.connectionSteps == 1:
+                        pass
+
                     message = self.socket.recv(1024) # receive E("Bob",R_A,K_AB)
-                    print("Client received a message: ", message)
+                    print("Received a message: ", message)
+
+                    while self.debugMode and self.connectionStep % self.connectionSteps == 0:
+                        pass
 
                     aes = AES.new(self.shared_key, AES.MODE_CBC, R)
                     msg = aes.decrypt(message) #decrypt using K_AB and R_A
