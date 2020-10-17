@@ -8,19 +8,6 @@ from listen import Listen
 from send import Send
 from recieve import Receive
 
-# HOST = '127.0.0.1'
-# PORT = 65432
-
-# with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#     s.connect((HOST, PORT))
-#     s.sendall(b'Hello, world')
-#     while True:
-#         data = s.recv(1024)
-#         print('Client Received: ' + data.decode("utf-8"))
-#         input_var = input("Reply: ")
-#         input_var = input_var.encode("utf-8")
-#         s.sendall(input_var)
-
 class Client:
 
     def __init__(self, ip_addr, port, shared_key):
@@ -38,12 +25,13 @@ class Client:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect((self.ip_addr, self.port))
 
+            #Point 1
             R_A = os.urandom(16) # generate R_A
             print("Client generated a nonce (R_A): ", R_A)
             self.socket.sendall(R_A) #send R_A
             print("Client sent nonce R_A.")
 
-            #2nd arrow in Figure 9.12
+            #Point2: 2nd arrow in Figure 9.12
             R_B = self.socket.recv(16) # receive R_B
             print("Client received a nonce (R_B): ", R_B)
             message = self.socket.recv(1024) # receive E("Bob",R_A,K_AB)
@@ -61,7 +49,7 @@ class Client:
                 print("Server IP address is NOT a match")
                 raise Exception("Authentication is: INVALID")
 
-            #3rd arrow in Figure 9.12
+            #Point 3: 3rd arrow in Figure 9.12
             message = socket.gethostbyname(socket.gethostname()) # get own IP
             n = len(message)
 
@@ -86,8 +74,8 @@ class Client:
 
     def startSendRecieveThreads(self):
         print("Client starting send receive threads...")
-        self.sendThread = Send(self.socket, self.send_queue)
-        self.receiveThread = Receive(self.socket, self.receive_queue)
+        self.sendThread = Send(self.socket, self.send_queue, self.shared_key)
+        self.receiveThread = Receive(self.socket, self.receive_queue, self.shared_key)
         self.sendThread.start()
         self.receiveThread.start()
 
