@@ -28,6 +28,7 @@ class VpnChatApp(App):
         self.server = None
         self.message_receiver = None # Thread that listens to the receive queue of connection
         self.debug_mode = False
+        self.connection_steps = 0
 
     # Callback function called when connection is succesfully established
     # This connects the Message reciever thread to the appropiate connection
@@ -83,7 +84,8 @@ class VpnChatApp(App):
                     port,
                     shared_key,
                     self.on_connected_callback,
-                    self.debug_mode
+                    self.debug_mode,
+                    self
 
             )
             message = self.server.setup()
@@ -95,7 +97,8 @@ class VpnChatApp(App):
                     ip_address,
                     port,
                     shared_key,
-                    self.debug_mode
+                    self.debug_mode,
+                    self
             )
             message = self.client.connect()
             self.chat_window.write_info(message)
@@ -103,8 +106,12 @@ class VpnChatApp(App):
 
     # User clicks on Continuwe button
     def on_continue_btn_clicked(self, *args):
-        pass # TODO 
+        self.connection_steps+=1
         
+    
+    def get_conn_steps_callback(self):
+        return self.connection_steps
+
     # Client Toggle button onClick fuction
     def toggle_client_button(self, *args):
         state = args[1]
@@ -151,6 +158,7 @@ class VpnChatApp(App):
         else:
             self.debug_mode = False
             self.chat_window.write_info("Debug Mode off!")
+    
 
 
     def build(self):

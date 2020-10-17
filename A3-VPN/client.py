@@ -11,7 +11,7 @@ from recieve import Receive
 
 class Client:
 
-    def __init__(self, ip_addr, port, shared_key, debug_mode):
+    def __init__(self, ip_addr, port, shared_key, debug_mode, app):
         self.ip_addr = ip_addr
         self.port = port
         self.shared_key = shared_key
@@ -23,6 +23,7 @@ class Client:
         self.connectionStep = 1
         self.connectionSteps = 5
         self.debugMode = debug_mode
+        self.app = app
 
     def connect(self):
 
@@ -99,8 +100,8 @@ class Client:
 
     def startSendRecieveThreads(self):
         print("Client starting send receive threads...")
-        self.sendThread = Send(self.socket, self.send_queue, self.shared_key, self.debugMode)
-        self.receiveThread = Receive(self.socket, self.receive_queue, self.shared_key, self.debugMode)
+        self.sendThread = Send(self.socket, self.send_queue, self.shared_key, self.debugMode, self.app)
+        self.receiveThread = Receive(self.socket, self.receive_queue, self.shared_key, self.debugMode, self.app)
         self.sendThread.start()
         self.receiveThread.start()
 
