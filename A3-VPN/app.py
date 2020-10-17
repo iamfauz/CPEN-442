@@ -21,7 +21,7 @@ from client import Client
 
 # This is the entrypoint of our application
 class VpnChatApp(App):
-    
+
     def __init__(self, **kwargs):
         super(VpnChatApp, self).__init__(**kwargs)
         self.client = None
@@ -45,7 +45,7 @@ class VpnChatApp(App):
         self.message_receiver = MessageReceiver(sender_name, conn, chat_window)
         self.message_receiver.start()
 
-    
+
     # Called when 'Connect' button is pressed
     def on_connect_btn_clicked(self, btn):
 
@@ -58,10 +58,12 @@ class VpnChatApp(App):
         except ValueError:
                 self.chat_window.write_info("Invalid port: " + port)
                 return
-    
+
         # Get Shared key from GUI
         shared_key = self.get_config_widget_input(self.shared_value)
         shared_key = str(shared_key)
+        shared_key = shared_key.encode("utf8")
+        shared_key = shared_key.zfill(16) #pad the key to be 16 bytes
         if not shared_key:
                 self.chat_window.write_info("Enter Shared key")
                 return
@@ -73,23 +75,23 @@ class VpnChatApp(App):
             if not ip_address:
                 self.chat_window.write_info("Enter Valid IP Adress")
                 return
-            
+
         if (self.server_mode.state == 'down'):
             # Initialize Server and setup server
             self.server = Server(
-                    port, 
+                    port,
                     shared_key,
                     self.on_connected_callback,
-                    
+
             )
             message = self.server.setup()
             self.chat_window.write_info(message)
             self.server.start()
         else:
-            # Initialize Client and initaiate connection 
+            # Initialize Client and initaiate connection
             self.client = Client(
-                    ip_address, 
-                    port, 
+                    ip_address,
+                    port,
                     shared_key,
             )
             message = self.client.connect()
@@ -102,7 +104,7 @@ class VpnChatApp(App):
         if state == "down":
             self.control_panel.add_widget(self.ip_address, 7)
             self.chat_window.write_info("You are now in Client Mode")
-    
+
      # Server Toggle button onClick fuction
     def toggle_server_button(self, *args):
         state = args[1]
@@ -110,13 +112,13 @@ class VpnChatApp(App):
             self.control_panel.remove_widget(self.ip_address)
             self.chat_window.write_info("You are now in Server Mode")
 
-    # Called when Send button is clicked 
+    # Called when Send button is clicked
     def on_send_btn_clicked(self, btn):
         msg = self.chat_input.text
-        self.chat_window.write_message("ME", msg)        
+        self.chat_window.write_message("ME", msg)
         if self.server_mode.state == 'down':
                 self.server.send(msg)
-        else:      
+        else:
                 self.client.send(msg)
         self.chat_input.text = "" # Clear Text Input
 
@@ -149,19 +151,19 @@ class VpnChatApp(App):
                             size_hint=(0.3, 1),
                             padding=10,
         )
-       
+
         # Client/Server Toggle Buttons
         self.client_mode = ToggleButton(
-                text='Client', 
-                group='mode', 
+                text='Client',
+                group='mode',
                 state='down',
                 allow_no_selection=False,
                 size=(300,50),
                 size_hint=(1, None)
         )
         self.server_mode = ToggleButton(
-                text='Server', 
-                group='mode', 
+                text='Server',
+                group='mode',
                 allow_no_selection=False,
                 size=(300,50),
                 size_hint=(1, None)
@@ -181,26 +183,26 @@ class VpnChatApp(App):
         self.port = self.ConfigWidget(text="Server Port")
         self.control_panel.add_widget(self.port)
         self.control_panel.add_widget(Widget())
-        
+
         # Shared Value Input
         self.shared_value = self.ConfigWidget(text="Shared Secret Value")
         self.control_panel.add_widget(self.shared_value)
 
-     
+
         # Connect and Disconnect Buttons
         self.connect_button = Button(
-                text="Connect", 
+                text="Connect",
                 background_color=(0,1,0,1),
                 size=(300, 85),
                 size_hint=(1, None)
         )
         self.connect_button.bind(on_press=self.on_connect_btn_clicked)
         self.disconnect_button = Button(
-                text="Disconnect", 
+                text="Disconnect",
                 background_color=(1,0,0,1),
                 size=(300, 85),
                 size_hint=(1, None),
-                
+
         )
         self.control_panel.add_widget(self.connect_button)
         self.control_panel.add_widget(self.disconnect_button)
@@ -232,7 +234,7 @@ class VpnChatApp(App):
         return self.root
 
 class ColoredBoxWidget(BoxLayout):
-    
+
     def __init__(self, background_color=(160,160,160,0.5), **kwargs):
         super(ColoredBoxWidget, self).__init__(**kwargs)
         self.background_color = background_color
@@ -242,13 +244,13 @@ class ColoredBoxWidget(BoxLayout):
 
         self.bind(pos=self.update_rect,
                   size=self.update_rect)
-    
+
     def update_rect(self, *args):
         self.rect.pos = self.pos
         self.rect.size = self.size
 
 class ChatWindow(TextInput):
-    
+
     def __init__(self, **kwargs):
         self.lock = threading.Lock()
         super(ChatWindow, self).__init__(**kwargs)
@@ -265,16 +267,16 @@ class ChatWindow(TextInput):
         time = datetime.datetime.now().time().strftime('%H:%M')
         header = "(%s) [%s]     " %(time, tag)
         self.write(header + message)
-    
+
     def write_info(self, message):
         time = datetime.datetime.now().time().strftime('%H:%M')
         info_msg = "(%s) [INFO]     " % (time)
         self.write(info_msg + message)
 
-# Thread that listens to the recieve queue of the connection and 
+# Thread that listens to the recieve queue of the connection and
 # Outputs stuff on the Chat Window
 class MessageReceiver(threading.Thread):
-    
+
     def __init__(self, tag, conn, chat_window):
         threading.Thread.__init__(self)
         self.tag = tag
