@@ -98,6 +98,10 @@ class VpnChatApp(App):
             self.chat_window.write_info(message)
             self.on_connected_callback(ip_address, port)
 
+    # User clicks on Continuwe button
+    def on_continue_btn_clicked(self, *args):
+        pass # TODO 
+        
     # Client Toggle button onClick fuction
     def toggle_client_button(self, *args):
         state = args[1]
@@ -204,8 +208,18 @@ class VpnChatApp(App):
                 size_hint=(1, None),
 
         )
+
+        self.continue_button = Button(
+                text="Continue",
+                background_color=(1,0,1,1),
+                size=(300, 85),
+                size_hint=(1, None),
+
+        )
+        self.continue_button.bind(on_press=self.on_continue_btn_clicked)
         self.control_panel.add_widget(self.connect_button)
         self.control_panel.add_widget(self.disconnect_button)
+        self.control_panel.add_widget(self.continue_button)
 
         # Chat Layout Panel
         self.chat_layout = BoxLayout(
