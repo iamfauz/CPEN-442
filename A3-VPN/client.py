@@ -2,6 +2,7 @@ import socket
 import sys
 import random
 import os
+import hashlib
 from Crypto.Cipher import AES
 from queue import Queue
 from listen import Listen
@@ -30,6 +31,11 @@ class Client:
             print("Client generated a nonce (R_A): ", R_A)
             self.socket.sendall(R_A) #send R_A
             print("Client sent nonce R_A.")
+
+            #generation of key K_AB fresh session key
+            keyHash = hashlib.md5(self.shared_key + R_A)
+            self.shared_key = keyHash.digest()
+            print('The fresh session key is ', self.shared_key)
 
             #Point2: 2nd arrow in Figure 9.12
             R_B = self.socket.recv(16) # receive R_B

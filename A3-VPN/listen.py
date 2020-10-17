@@ -5,6 +5,7 @@ import os
 from Crypto.Cipher import AES
 import threading
 import time
+import hashlib
 # Thead used by the server to listen for connection requests
 class Listen(threading.Thread):
 
@@ -28,6 +29,11 @@ class Listen(threading.Thread):
             print("Server received a nonce (R_A): ", R_A)
             R_B = os.urandom(16) # generate R_B
 
+            #generation of key K_AB
+            keyHash = hashlib.md5(self.server.shared_key + R_A)
+            self.shared_key = keyHash.digest()
+            self.server.shared_key = self.shared_key
+            print('The fresh session key is ', self.shared_key)
             #2nd arrow in Figure 9.12
             print("Server generated a nonce (R_B): ", R_B)
             client_socket.sendall(R_B) #send R_B
@@ -48,7 +54,7 @@ class Listen(threading.Thread):
             aes = AES.new(self.server.shared_key, AES.MODE_CBC, R_B)
             decd = aes.decrypt(message) #decrypt using self.server.shared_key and R_A
             client_IP = str(decd.rstrip().decode())
-            
+
             if(client_IP == addr[0]):
                 print("Client IP address is a match.")
                 print("Authentication is: VALID")
